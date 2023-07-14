@@ -17,7 +17,7 @@ class QuestMain extends PluginBase implements Listener {
 $this->saveDefaultConfig();
   }
 
-  public function PlayerTime(){
+  public function PlayerTime(DateTime $time){
   $player = $this->getServer()->getPlayer();
   $customConfig = $this->getFolder("Resources")->getFiles();
     if ($player != $customConfig) {
@@ -30,7 +30,7 @@ $this->getFolder("Resources")->addFile($player, $this->playerData());
   public function onPlayerJoin(Listener $event, Player $player): void {
   $this->PlayerTime();  
 }
-  public function playerData(){
-$timenow = $DateTime->timeNow();
+  public function playerData(DateTime $time){
+$timenow = $time->timeNow();
   }
 }
