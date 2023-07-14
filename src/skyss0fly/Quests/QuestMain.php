@@ -7,6 +7,8 @@ use pocketmine\command\Command;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
+use supercrafter333\PlayedTime;
+use brokiem\SimpleNPC;
 
 class QuestMain extends PluginBase implements Listener {
 }
