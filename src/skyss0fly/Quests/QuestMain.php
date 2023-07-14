@@ -30,7 +30,7 @@ $this->getFolder("Resources")->addFile($player, $this->playerData());
   public function onPlayerJoin(Listener $event, Player $player): void {
   $this->PlayerTime();  
 }
-  public function playerData {
+  public function playerData: void{
 $timenow = $DateTime->timeNow();
   }
 }
