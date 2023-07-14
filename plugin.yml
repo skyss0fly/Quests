@@ -1,0 +1,15 @@
+name: Quests
+main: skyss0fly\Quests\QuestMain
+version: 1.0
+api: 5.0.0
+author: skyss0fly
+description: A simple Quests plugin
+permissions:
+  Quests.admin:
+    default: op
+commands:
+  Quest:
+    description: use this to Configure Questa
+    permission: Quests.admin
+    default: false
+  
