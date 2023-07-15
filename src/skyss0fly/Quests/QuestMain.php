@@ -1,36 +1,23 @@
 <?php
 
 namespace skyss0fly\Quests;
-use DateTime;
-use DateInterval;
-use pocketmine\command\CommandSender;
-use pocketmine\command\Command;
-use pocketmine\player\Player;
+
 use pocketmine\plugin\PluginBase;
+use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\Listener;
-use supercrafter333\PlayedTime;
-use brokiem\SimpleNPC;
+use pocketmine\scheduler\Task;
+use pocketmine\Player;
+use DateTime;
 
-class QuestMain extends PluginBase implements Listener {
+class Main extends PluginBase implements Listener{
+    private $playerData = [];
 
-  public function onLoad(): void {
-$this->saveDefaultConfig();
-  }
-
-  public function PlayerTime(DateTime $time){
-  $player = $this->getServer()->getPlayer();
-  $customConfig = $this->getFolder("Resources")->getFiles();
-    if ($player != $customConfig) {
-$this->getFolder("Resources")->addFile($player, $this->playerData());
-      
+    public function onEnable(): void {
+        $this->getServer()->getPluginManager()->registerEvents($this, $this);
+        $this->getScheduler()->scheduleRepeatingTask(new TimeUpdateTask($this), 20 * 60); // Update time every minute
     }
-    
-}
 
-  public function onPlayerJoin(Listener $event, Player $player): void {
-  $this->PlayerTime();  
-}
-  public function playerData(DateTime $time){
-$timenow = $time->timeNow();
-  }
-}
+    public function onPlayerJoin(PlayerJoinEvent $event): void {
+        $player = $event->getPlayer();
+        $playerName = $player->getName();
+        $this->playerData[$playerName] =
