@@ -21,3 +21,4 @@ class Main extends PluginBase implements Listener{
         $player = $event->getPlayer();
         $playerName = $player->getName();
         $this->playerData[$playerName] =
+            }
