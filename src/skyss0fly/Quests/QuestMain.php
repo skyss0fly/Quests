@@ -20,5 +20,5 @@ class Main extends PluginBase implements Listener{
     public function onPlayerJoin(PlayerJoinEvent $event): void {
         $player = $event->getPlayer();
         $playerName = $player->getName();
-        $this->playerData[$playerName] =
+        $this->playerData[$playerName] = //coming soon
             }
