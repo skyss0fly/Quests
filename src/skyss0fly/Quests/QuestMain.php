@@ -10,7 +10,7 @@ use SimpleNPC\NPC;
 
 class Main extends PluginBase {
 	
-	public function onEnable(){
+	public function onEnable(): void{
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 		
 		if(!is_dir($this->getDataFolder())){
