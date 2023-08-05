@@ -9,7 +9,7 @@ permissions:
     default: op
 commands:
   Quest:
-    description: use this to Configure Questa
+    description: use this to Configure Quests
     permission: Quests.admin
     default: false
   
