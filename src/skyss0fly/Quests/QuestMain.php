@@ -12,18 +12,18 @@ use BeeAZ\HumanNPC\HumanNPC;
 
 class QuestMain extends PluginBase implements Listener {
 	
-	public function onEnable(): void{
-		$this->getServer()->getPluginManager()->registerEvents($this, $this);
-		$this->registerCommands();
+	public function onEnable(): void {
+	    $this->getServer()->getPluginManager()->registerEvents($this, $this);
+	    $this->registerCommands();
 		
-		if(!is_dir($this->getDataFolder())){
-			mkdir($this->getDataFolder());
-		}
+	    if(!is_dir($this->getDataFolder())){
+	       mkdir($this->getDataFolder());
+	    }
 		
-        	$this->quests = new Config($this->getDataFolder() . "quests.yml", Config::YAML);
+            $this->quests = new Config($this->getDataFolder() . "quests.yml", Config::YAML);
 
-        	$this->getServer()->getPluginManager()->registerEvents(new QuestsListener(), $this);
-        	$this->getLogger()->info("QuestsAPI has been enabled!");
+            $this->getServer()->getPluginManager()->registerEvents(new QuestsListener(), $this);
+            $this->getLogger()->info("QuestsAPI has been enabled!");
 	}
 
     	public function registerCommands() {
@@ -32,14 +32,14 @@ class QuestMain extends PluginBase implements Listener {
             ]);
         }
 	
-	public function getQuests(){
+	public function getQuests() {
 		return $this->quests->getAll();
 	}
 	
     	/**
      	* @throws \JsonException
      	*/
-	public function addQuest(Player $player, $questName, $questDescription, array $rewards){
+	public function addQuest(Player $player, $questName, $questDescription, array $rewards) {
 		$playerName = $player->getName();
 		
         	if ($this->quests->exists($questName)) {
@@ -72,7 +72,7 @@ class QuestMain extends PluginBase implements Listener {
     /**
      * @throws \JsonException
      */
-    public function completeQuest(Player $player, $questName){
+    public function completeQuest(Player $player, $questName) {
 	$questData = $this->quests->get($questName);
 
 	if(!$questData){
@@ -104,7 +104,7 @@ class QuestMain extends PluginBase implements Listener {
     /**
      * @throws \JsonException
      */
-    public function editQuest(Player $player, $questName, $newDescription, array $newRewards){
+    public function editQuest(Player $player, $questName, $newDescription, array $newRewards) {
         $questData = $this->quests->get($questName);
         if (!$questData) {
             $player->sendMessage("The data for this quest '" . $questName . "' does not exist.");
