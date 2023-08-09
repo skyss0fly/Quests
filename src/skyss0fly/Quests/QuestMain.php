@@ -4,34 +4,54 @@ namespace skyss0fly\Quests;
 
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
-use pocketmine\Player;
+use pocketmine\player\Player;
+use pocketmine\event\Listener;
 use pocketmine\Server;
-use SimpleNPC\NPC;
+use skyss0fly\Quests\Commands\AddQuestsCommand;
+use BeeAZ\HumanNPC\HumanNPC;
 
-class Main extends PluginBase {
+class QuestMain extends PluginBase implements Listener {
 	
-	public function onEnable(): void{
-		$this->getServer()->getPluginManager()->registerEvents($this, $this);
+	public function onEnable(): void {
+	    $this->getServer()->getPluginManager()->registerEvents($this, $this);
+	    $this->registerCommands();
 		
-		if(!is_dir($this->getDataFolder())){
-			mkdir($this->getDataFolder());
-		}
+	    if(!is_dir($this->getDataFolder())){
+	       mkdir($this->getDataFolder());
+	    }
 		
-		if (!file_exists($this->getDataFolder() . "quests.yml")) {
-			$this->quests = new Config($this->getDataFolder() . "quests.yml", Config::YAML);
-		}
-		
-		$this->getServer()->getPluginManager()->registerEvents(new QuestsListener($this), $this);
-		$this->getLogger()->info("QuestsAPI has been enabled!");
+            $this->quests = new Config($this->getDataFolder() . "quests.yml", Config::YAML);
+
+            $this->getServer()->getPluginManager()->registerEvents(new QuestsListener(), $this);
+            $this->getLogger()->info("QuestsAPI has been enabled!");
 	}
+
+    	public function registerCommands() {
+            $this->getServer()->getCommandMap()->registerAll("quests", [
+            	new AddQuestsCommand($this)
+            ]);
+        }
 	
-	public function getQuests(){
+	public function getQuests() {
 		return $this->quests->getAll();
 	}
 	
-	public function addQuest(Player $player, $questName, $questDescription, array $rewards){
+    	/**
+     	* @throws \JsonException
+     	*/
+	public function addQuest(Player $player, $questName, $questDescription, array $rewards) {
 		$playerName = $player->getName();
 		
+        	if ($this->quests->exists($questName)) {
+            	    $player->sendMessage("A quest with the named '" . $questName . "' already exists.");
+            	    return false;
+        	}
+
+        	if (empty($questName) || empty($questDescription || empty($rewards))) {
+                    $player->sendMessage("Quest data is incomplete. Provide a valid quest name, description and rewards.");
+                    return false;
+                }
+
 		$this->quests->set($questName, [
 			"player" => $playerName,
 			"description" => $questDescription,
@@ -42,31 +62,66 @@ class Main extends PluginBase {
 		
 		$player->sendMessage("You have added a new quest: '$questName'!");
 		
-		$npc = new NPC($player);
-		$npc->setName("Quest NPC: $questName");
-		$npc->showTo($player);
+		$npc = new HumanNPC($player->getLocation(), $player->getSkin());
+		$npc->setNameTag("Quest NPC: $questName");
+		$npc->setInvisible(false);
+        	$npc->spawnTo($player);
+        	return true;
 	}
 	
-	public function completeQuest(Player $player, $questName){
-		$questData = $this->quests->get($questName);
-		if(!$questData){
-			$player->sendMessage("This quest does not exist!");
-			return;
-		}
-		
-		if($questData["player"] !== $player->getName()){
-			$player->sendMessage("You can't complete this quest!");
-			return;
-		}
-		
-		foreach($questData["rewards"] as $reward){
-			Server::getInstance()->dispatchCommand(new ConsoleCommandSender(), "give " . $player->getName() . " " . $reward);
-		}
-		
-		$this->quests->remove($questName);
-		$this->quests->save();
-		
-		$player->sendMessage("You have completed the quest '$questName'!");
+    /**
+     * @throws \JsonException
+     */
+    public function completeQuest(Player $player, $questName) {
+	$questData = $this->quests->get($questName);
+
+	if(!$questData){
+	   $player->sendMessage("This quest does not exist!");
+	   return;
 	}
-	
+		
+	if($questData["player"] !== $player->getName()){
+	   $player->sendMessage("You can't complete this quest!");
+	   return;
+	}
+        foreach ($questData["rewards"] as $reward) {
+            $command = "give " . $player->getName() . " " . $reward;
+            $commandSender = new ConsoleCommandSender($this->getServer(), $this->getServer()->getLanguage());
+            $result = Server::getInstance()->dispatchCommand($commandSender, $command);
+            if ($result === false) {
+                $this->getLogger()->error("Error executing reward command: $command");
+                $player->sendMessage("An error occurred while giving rewards. Please contact an administrator.");
+                return;
+            }
+        }
+		
+	$this->quests->remove($questName);
+	$this->quests->save();
+		
+	$player->sendMessage("You have completed the quest '$questName'!");
+   }
+
+    /**
+     * @throws \JsonException
+     */
+    public function editQuest(Player $player, $questName, $newDescription, array $newRewards) {
+        $questData = $this->quests->get($questName);
+        if (!$questData) {
+            $player->sendMessage("The data for this quest '" . $questName . "' does not exist.");
+            return false;
+        }
+
+        if ($questData["player"] !== $player->getName()) {
+            $player->sendMessage("You can only edit the quests created by you.");
+            return false;
+        }
+
+        $questData["description"] = $newDescription;
+        $questData["rewards"] = $newRewards;
+
+        $this->quests->set($questName, $questData);
+        $this->quests->save();
+        $player->sendMessage("The quest '" . $questName . "' has been successfully edited.");
+        return true;
+    }
 }

@@ -2,7 +2,9 @@ name: Quests
 main: skyss0fly\Quests\QuestMain
 version: 1.0
 api: 5.0.0
-author: skyss0fly
+authors: 
+  - skyss0fly
+  - woccck # if this is okay 😉
 description: A simple Quests plugin
 permissions:
   Quests.admin:
@@ -12,4 +14,5 @@ commands:
     description: use this to Configure Quests
     permission: Quests.admin
     default: false
-  
+depend: # you can remove this if u want
+  - HumanNPC
